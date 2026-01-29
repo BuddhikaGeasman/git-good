@@ -14,12 +14,6 @@
         "tab": "Changelog",
         "groups": [
           {
-            "group": "Overview",
-            "pages": [
-              "index"
-            ]
-          },
-          {
             "group": "By Feature",
             "pages": [
               "features/dashboard-redesign"
