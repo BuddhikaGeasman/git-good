@@ -1,0 +1,198 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description || "Development changelog"} />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="container">
+      <slot />
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #FAFAF8;
+    color: #40434E;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  /* Headings */
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #40434E;
+    letter-spacing: 0.03em;
+  }
+
+  h2 {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-top: 3rem;
+    margin-bottom: 0.75rem;
+    color: #B3A394;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #40434E;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Text */
+  p {
+    color: #40434E;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .subtitle {
+    opacity: 0.6;
+    margin-bottom: 2rem;
+  }
+
+  /* Navigation */
+  nav {
+    margin: 2rem 0 3rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(179, 163, 148, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  nav a {
+    color: #40434E;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  nav a:hover {
+    color: #B3A394;
+  }
+
+
+  /* Lists */
+  ul, ol {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+  }
+
+  li {
+    font-size: 0.9375rem;
+    margin-bottom: 0.5rem;
+    padding-left: 1.25rem;
+    position: relative;
+    line-height: 1.7;
+    color: #40434E;
+  }
+
+  li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #B3A394;
+    font-weight: bold;
+  }
+
+  /* Links */
+  a {
+    color: #40434E;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  a:hover {
+    color: #B3A394;
+  }
+
+  /* Feature tags */
+  .feature-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: #B3A394;
+    background: rgba(179, 163, 148, 0.1);
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    margin-left: 0.5rem;
+    font-weight: 500;
+  }
+
+  /* Entry spacing */
+  .entry {
+    margin-bottom: 3rem;
+  }
+
+  /* Code */
+  code {
+    background: rgba(179, 163, 148, 0.1);
+    color: #40434E;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.8125rem;
+    font-family: 'SF Mono', Monaco, monospace;
+  }
+
+  pre code {
+    display: block;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .container {
+      padding: 3rem 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+    }
+
+    nav {
+      flex-wrap: wrap;
+    }
+  }
+</style>
