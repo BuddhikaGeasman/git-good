@@ -1,6 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Nav from '../layouts/Nav.astro';
+
+const changelogs = await Astro.glob('./changelog/*.mdx');
+
+const sortedChangelogs = changelogs
+  .filter((log) => log.frontmatter?.date)
+  .sort((a, b) => {
+    const dateA = new Date(a.frontmatter.date);
+    const dateB = new Date(b.frontmatter.date);
+    return dateB.getTime() - dateA.getTime();
+  });
 ---
 
 <Layout title='git good' description='Development changelog'>
@@ -11,66 +21,42 @@ import Nav from '../layouts/Nav.astro';
 
   <Nav />
 
-  <main>
-    <div class='entry'>
-      <h2>February 10, 2026</h2>
-      <ul>
-        <li>
-          Fixed header alignment in dashboard <span class='feature-tag'
-            >dashboard</span
-          >
-        </li>
-        <li>
-          Added login validation with error messages <span class='feature-tag'
-            >auth</span
-          >
-        </li>
-        <li>
-          Implemented table pagination and sorting <span class='feature-tag'
-            >data-table</span
-          >
-        </li>
-        <li>Updated design system color tokens</li>
-        <li>
-          Refactored state management in dashboard <span class='feature-tag'
-            >dashboard</span
-          >
-        </li>
-      </ul>
-    </div>
-
-    <div class='entry'>
-      <h2>February 9, 2026</h2>
-      <ul>
-        <li>
-          Render the control panels <span class='feature-tag'>dashboard</span>
-        </li>
-        <li>Set up global state management with Zustand</li>
-        <li>Created reusable button components</li>
-        <li>
-          Added loading states to table view <span class='feature-tag'
-            >data-table</span
-          >
-        </li>
-      </ul>
-    </div>
-
-    <div class='entry'>
-      <h2>February 8, 2026</h2>
-      <ul>
-        <li>
-          Render header with navigation tabs <span class='feature-tag'
-            >dashboard</span
-          >
-        </li>
-        <li>
-          Change icons to Gear and Plus <span class='feature-tag'
-            >dashboard</span
-          >
-        </li>
-        <li>Set up project structure and routing</li>
-        <li>Configured TypeScript and build tools</li>
-      </ul>
-    </div>
+  <main class='changelog'>
+    {
+      sortedChangelogs.map((log) => (
+        <div class='entry'>
+          <h2>{log.frontmatter.title}</h2>
+          <div class='entry-content'>
+            <log.Content />
+          </div>
+        </div>
+      ))
+    }
   </main>
 </Layout>
+
+<style>
+  .changelog .entry {
+    margin-bottom: 1.5rem;
+  }
+
+  /* Remove extra spacing from changelog content */
+  .entry-content :global(h3),
+  .entry-content :global(h4) {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .entry-content :global(h2) {
+    margin-top: 0.5rem;
+  }
+
+  .entry-content :global(ul),
+  .entry-content :global(ol) {
+    margin: 0.5rem 0;
+  }
+
+  .entry-content :global(p) {
+    margin-bottom: 0.5rem;
+  }
+</style>

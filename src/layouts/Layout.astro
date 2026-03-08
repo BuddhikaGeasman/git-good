@@ -8,19 +8,22 @@ const { title, description } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content={description || "Development changelog"} />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset='UTF-8' />
+    <meta name='description' content={description || 'Development changelog'} />
+    <meta name='viewport' content='width=device-width' />
+    <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
+    <link rel='preconnect' href='https://fonts.googleapis.com' />
+    <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+    <link
+      href='https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap'
+      rel='stylesheet'
+    />
     <title>{title}</title>
   </head>
   <body>
-    <div class="container">
+    <div class='container'>
       <slot />
     </div>
   </body>
@@ -34,16 +37,20 @@ const { title, description } = Astro.props;
   }
 
   body {
-    font-family: 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #FAFAF8;
-    color: #40434E;
+    font-family:
+      'Figtree',
+      -apple-system,
+      BlinkMacSystemFont,
+      sans-serif;
+    background: #fafaf8;
+    color: #40434e;
     line-height: 1.6;
   }
 
   .container {
     max-width: 680px;
     margin: 0 auto;
-    padding: 4rem 2rem;
+    padding: 2rem 2rem;
   }
 
   /* Headings */
@@ -51,16 +58,16 @@ const { title, description } = Astro.props;
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: #40434E;
+    color: #40434e;
     letter-spacing: 0.03em;
   }
 
   h2 {
     font-size: 0.8125rem;
     font-weight: 600;
-    margin-top: 3rem;
-    margin-bottom: 0.75rem;
-    color: #B3A394;
+    margin-top: 1.5rem;
+
+    color: #b3a394;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
@@ -68,14 +75,14 @@ const { title, description } = Astro.props;
   h3 {
     font-size: 1rem;
     font-weight: 500;
-    color: #40434E;
+    color: #40434e;
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
   }
 
   /* Text */
   p {
-    color: #40434E;
+    color: #40434e;
     font-size: 0.9375rem;
     line-height: 1.7;
     margin-bottom: 1rem;
@@ -97,7 +104,7 @@ const { title, description } = Astro.props;
   }
 
   nav a {
-    color: #40434E;
+    color: #40434e;
     text-decoration: none;
     font-size: 0.875rem;
     font-weight: 500;
@@ -108,15 +115,14 @@ const { title, description } = Astro.props;
   }
 
   nav a:hover {
-    color: #B3A394;
+    color: #b3a394;
   }
 
-
   /* Lists */
-  ul, ol {
+  ul,
+  ol {
     list-style: none;
     padding: 0;
-    margin: 1rem 0;
   }
 
   li {
@@ -125,33 +131,33 @@ const { title, description } = Astro.props;
     padding-left: 1.25rem;
     position: relative;
     line-height: 1.7;
-    color: #40434E;
+    color: #40434e;
   }
 
   li::before {
-    content: "•";
+    content: '•';
     position: absolute;
     left: 0;
-    color: #B3A394;
+    color: #b3a394;
     font-weight: bold;
   }
 
   /* Links */
   a {
-    color: #40434E;
+    color: #40434e;
     text-decoration: none;
     transition: color 0.2s ease;
   }
 
   a:hover {
-    color: #B3A394;
+    color: #b3a394;
   }
 
   /* Feature tags */
   .feature-tag {
     display: inline-block;
     font-size: 0.75rem;
-    color: #B3A394;
+    color: #b3a394;
     background: rgba(179, 163, 148, 0.1);
     padding: 0.125rem 0.5rem;
     border-radius: 0.25rem;
@@ -167,7 +173,7 @@ const { title, description } = Astro.props;
   /* Code */
   code {
     background: rgba(179, 163, 148, 0.1);
-    color: #40434E;
+    color: #40434e;
     padding: 0.125rem 0.375rem;
     border-radius: 0.25rem;
     font-size: 0.8125rem;
@@ -184,7 +190,7 @@ const { title, description } = Astro.props;
   /* Responsive */
   @media (max-width: 640px) {
     .container {
-      padding: 3rem 1.5rem;
+      padding: 2rem 1rem;
     }
 
     h1 {
