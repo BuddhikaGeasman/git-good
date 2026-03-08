@@ -1,0 +1,26 @@
+---
+const currentPath = Astro.url.pathname;
+---
+
+<nav>
+  <a href='/' class={currentPath === '/' ? 'active' : ''}>Changelog</a>
+  <a
+    href='/about'
+    class={currentPath === '/about' || currentPath === '/about/'
+      ? 'active'
+      : ''}>About</a
+  >
+  <a
+    href='/resume'
+    class={currentPath === '/resume' || currentPath === '/resume/'
+      ? 'active'
+      : ''}>Resume</a
+  >
+</nav>
+
+<style>
+  nav a.active {
+    color: #b3a394;
+    font-weight: 600;
+  }
+</style>

@@ -1,46 +1,73 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Nav from '../layouts/Nav.astro';
 ---
 
-<Layout title="git good" description="Development changelog">
+<Layout title='git good' description='Development changelog'>
   <header>
     <h1>git good</h1>
-    <p class="subtitle">Development changelog</p>
+    <p class='subtitle'>Development changelog</p>
   </header>
 
-  <nav>
-    <a href="/">Changelog</a>
-    <a href="/about">About</a>
-    <a href="/resume">Resume</a>
-  </nav>
+  <Nav />
 
   <main>
-    <div class="entry">
+    <div class='entry'>
       <h2>February 10, 2026</h2>
       <ul>
-        <li>Fixed header alignment in dashboard <span class="feature-tag">dashboard</span></li>
-        <li>Added login validation with error messages <span class="feature-tag">auth</span></li>
-        <li>Implemented table pagination and sorting <span class="feature-tag">data-table</span></li>
+        <li>
+          Fixed header alignment in dashboard <span class='feature-tag'
+            >dashboard</span
+          >
+        </li>
+        <li>
+          Added login validation with error messages <span class='feature-tag'
+            >auth</span
+          >
+        </li>
+        <li>
+          Implemented table pagination and sorting <span class='feature-tag'
+            >data-table</span
+          >
+        </li>
         <li>Updated design system color tokens</li>
-        <li>Refactored state management in dashboard <span class="feature-tag">dashboard</span></li>
+        <li>
+          Refactored state management in dashboard <span class='feature-tag'
+            >dashboard</span
+          >
+        </li>
       </ul>
     </div>
 
-    <div class="entry">
+    <div class='entry'>
       <h2>February 9, 2026</h2>
       <ul>
-        <li>Render the control panels <span class="feature-tag">dashboard</span></li>
+        <li>
+          Render the control panels <span class='feature-tag'>dashboard</span>
+        </li>
         <li>Set up global state management with Zustand</li>
         <li>Created reusable button components</li>
-        <li>Added loading states to table view <span class="feature-tag">data-table</span></li>
+        <li>
+          Added loading states to table view <span class='feature-tag'
+            >data-table</span
+          >
+        </li>
       </ul>
     </div>
 
-    <div class="entry">
+    <div class='entry'>
       <h2>February 8, 2026</h2>
       <ul>
-        <li>Render header with navigation tabs <span class="feature-tag">dashboard</span></li>
-        <li>Change icons to Gear and Plus <span class="feature-tag">dashboard</span></li>
+        <li>
+          Render header with navigation tabs <span class='feature-tag'
+            >dashboard</span
+          >
+        </li>
+        <li>
+          Change icons to Gear and Plus <span class='feature-tag'
+            >dashboard</span
+          >
+        </li>
         <li>Set up project structure and routing</li>
         <li>Configured TypeScript and build tools</li>
       </ul>
