@@ -1,0 +1,17 @@
+---
+layout: ../../layouts/Layout.astro
+title: "February 24, 2026"
+date: 2026-02-24
+tags: [changelog]
+features: []
+---
+
+- More bug fixes related to charts
+#### Zombie Article Issue
+- Load-more requests couldn’t be cancelled – Only the “initial” article fetch used an AbortController. Infinite-scroll “load more” (append) requests ran without a signal, so they were never aborted.
+- Filter change didn’t stop in-flight load more – Changing date, chart bar, search, etc. called resetState() and started a new initial fetch (which did abort the previous initial request). Any in-flight “load more” from before the change kept running.
+- Stale response was still applied – When that old “load more” finished, it called appendArticles() with the old data. By then the list had already been replaced with the new filter’s results, so the stale page was appended and showed up as “zombie” articles.
+- Fix – A separate currentAppendController is used for append requests and is aborted whenever an initial fetch starts (e.g. on any filter change). So in-flight “load more” is cancelled and its result is never applied, eliminating zombie articles.
+#### Narrative Cluster Table
+- Set up state for NC table Tab
+- Set up queries

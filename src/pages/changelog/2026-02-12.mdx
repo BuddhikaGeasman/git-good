@@ -1,0 +1,14 @@
+---
+layout: ../../layouts/Layout.astro
+title: "February 12, 2026"
+date: 2026-02-12
+tags: [changelog]
+features: []
+---
+
+#### House Keeping
+- Update CLAUDE.md to flag deprecated folders and files in the code base. So we can stop gap adding new functionalities under wrong folder and file systems
+#### TanStack Migration Work
+- **News feed modals:** Rendered **NewsFeedModals** inside **NewsFeedContent** (direct import) so it matches **ShareOfVoiceContent** and **NewsAlertsContent**. Removed **NewsFeedModals** from **NewsFeedPage** so both the Analysis route and the news feed page get modals from **NewsFeedContent**.
+- **Deep link `/analysis/1?articleId=123`:** Confirmed support is possible. **tanStackRouteSearchSchema** already includes `articleId`. Plan: add **articleId** to **AnalysisParamsContextValue**, have **ArticleMetricsSheet** read from context on Analysis and use **navigateWithSearch** to clear on close, uncomment **ArticleMetricsSheet** in **NewsFeedModals**, and in **ArticlesContainer** call **navigateWithSearch(\{ articleId \})** on card click when in analysis context.
+- **Article card search/mention:** Removed clamping for search texts in **article-mention-text.tsx** and **utils.tsx**; updated **utils.test.tsx** to match. Uncommitted changes remain in those files.

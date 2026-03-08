@@ -1,0 +1,26 @@
+---
+layout: ../../layouts/Layout.astro
+title: "February 25, 2026"
+date: 2026-02-25
+tags: [changelog]
+features: []
+---
+
+#### createNarrativeClustersDatasource:
+1. Store state – Uses setIsFetchingNarrativeClustersTableData, setNarrativeClustersTableError, and setTotalNarrativeClustersCount.
+2. Filters – Builds projectionFilters from getProjectionFilters() and merges in searchMatch when searchTerm is non-empty. Reads filters from getFilters().
+3. Pagination – Derives limit and offset from AG Grid params.startRow/params.endRow (same logic as the articles datasource, default page size 50).
+4. Fetch & transform – Calls fetchNarrativeClustersForSSRM, maps results with transformNarrativeClusterToRowData, and passes the result as NarrativeClusterRowData[].
+5. Stale responses – Checks fetchId !== latestFetchId and, if stale, avoids updating the store but still calls successCallback and updates the in-flight count.
+6. Error handling – On error, updates the store, clears loading, and calls params.failCallback().
+
+#### Narrative Cluster Table
+- NarrativeClustersTable and datasource
+- Memoised UnifiedOverlay and handleRetry to avoid AG Grid unmount/remount and flicker
+- Stale fetches now call params.failCallback() instead of successCallback so outdated totalCount is not applied
+- Removed dead applyColumnState(\{ colId: "VOLUME" \}) calls; VOLUME column doesn’t exist
+- Removed redundant purgeInfiniteCache + refreshInfiniteCache effect; AG Grid already refreshes when datasource changes
+- Wired isNarrativeClustersInitialLoading in datasource: set to true on first batch (startRow === 0), false on completion
+- Added comment explaining module-level session counters for race-condition handling
+- NarrativeClustersTableStates
+- Dropped redundant setSearchTerm("") in onReset since resetState() already clears it

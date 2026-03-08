@@ -1,0 +1,29 @@
+---
+layout: ../../layouts/Layout.astro
+title: "February 9, 2026"
+date: 2026-02-09
+tags: [changelog]
+features: []
+---
+
+### Tasks Done & Summary
+- Added **ShareOfVoiceParamsContext** (shareOfVoice-params.context.tsx): startDate, endDate, filtersAnd.
+- **ShareOfVoiceRoute** provides that context (dates from computeDates, filters from **buildAndFromSelected**(search params)).
+- **useShareOfVoiceDates** and **useShareOfVoiceFilters** use context when present, otherwise store (hooks always called, no conditional hook).
+- SOV selectors now use **buildAndFromSelected** (same as Discovery) instead of key.toLowerCase().
+#### **Why we added the context and provider**
+- On the **TanStack** SOV route, filters and dates live in the **URL** (search params). We never write them into the Zustand params store.
+- The **subscription** (useShareOfVoiceFilterSubscriptions) and **metrics table** (useGetShareOfVoiceMetricsTableData) were still reading from the **store** via useShareOfVoiceDates() and useShareOfVoiceFilters(), so they kept seeing default/stale values and didn’t react to filter/date changes.
+- We needed a way for those hooks to get the **current URL-derived** dates and filters when we’re on the TanStack route, without changing how the React Router SOV page works (it still uses the store).
+- So we added **ShareOfVoiceParamsContext** and **ShareOfVoiceParamsProvider**: the TanStack **ShareOfVoiceRoute** computes startDate, endDate, and filtersAnd from the URL and provides them via context. **useShareOfVoiceDates** and **useShareOfVoiceFilters** were updated to use that context when present and fall back to the store otherwise. That way the subscription and table get the right values on the TanStack route, and the React Router SOV page is unchanged. Same idea as Discovery’s context: one place provides the “current” params (from URL on TanStack, from store on React Router).
+#### **Analysis route (TanStack)**
+- Added /analysis (redirect to first feed) and /analysis/$feedId with a dummy view, then built out the real layout.
+- **Main router switch**
+- Updated main.tsx so /analysis and /news-alerts use the new router (with /discovery and /share-of-voice). Refreshing on Analysis no longer sends you back to newsfeeds.
+- **AnalysisContentManagementPanel**
+- New panel (Analysis-only) with: 3-column grid (content-sized | 1fr | auto), stacks on small screens with left alignment.
+- **Column 1:** “Show filters” button (same style as NewsFeedFilterSidebar), only when sidebar is closed.
+- **Column 2:** SavedViewsList (navigates to /analysis/$feedId with search params for default/saved view).
+- **Column 3:** DateRangePicker.
+- Date range logic lives in the panel: reads/writes URL via TanStack Router (useSearch, useNavigate, useRouterState), computeDates, and handleDateRangeApply (no date props from parent).
+- Optional props: isFilterSidebarOpen, onToggleFilterSidebar for when the filter sidebar is wired.

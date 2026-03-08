@@ -1,0 +1,73 @@
+---
+layout: ../../layouts/Layout.astro
+title: "February 20, 2026"
+date: 2026-02-20
+tags: [changelog]
+features: []
+---
+
+- [ ] Clear out the url on merge cluster
+- [ ] Retain the feed id when switching to analysis
+- [ ] Render error boundaries with tan stack router
+
+## Auth Redirect Bug on Page Refresh (Production Only)
+
+### The Issue
+When refreshing the browser on the Analysis route (e.g. `/analysis/74?filterDays=30&period=day&selected=...`), the app incorrectly redirects the user to `/discovery` instead of staying on the current page. This only occurs on the **production build** hosted on Cloudflare — it does not reproduce on dev or stage builds hosted on AWS Amplify.
+### Root Cause
+Zustand's `persist` middleware restores state from `localStorage` via an **asynchronous microtask**, even though `localStorage` itself is synchronous. This creates a race condition between auth state hydration and TanStack Router initialization:
+
+1. Page refreshes → SPA loads from scratch
+2. Auth store is created with initial state (`loggedIn: false`)
+3. Zustand schedules hydration from `localStorage` as a microtask
+4. TanStack Router initializes and `authenticatedRoute.beforeLoad` fires **before** hydration completes
+5. `useAuth.getState().loggedIn` is still `false` → redirects to `/auth/login`
+6. Hydration finishes → `loggedIn` becomes `true`
+7. Login route's `beforeLoad` sees `loggedIn: true` → redirects to `/discovery`
+
+The end result: the user lands on `/discovery` instead of their original route.
+### Why Only Production?
+The race condition exists in all environments, but the outcome depends on how fast the JS bundle is delivered and executed:
+
+| Environment | Hosting      | Behavior |
+|------------|--------------|----------|
+| Dev        | Vite dev server (local) | HMR + unoptimized modules add enough delay for hydration to complete first |
+| Stage      | AWS Amplify  | Slightly higher latency to serve assets gives hydration time to flush |
+| Production | Cloudflare   | Edge network with aggressive caching serves assets with near-zero latency — the router fires before the microtask queue processes hydration |
+
+Same code, same build pipeline — Cloudflare is simply fast enough to expose the race condition.
+
+### Fix
+Await Zustand's persist hydration in all route guards before checking auth state:
+```ts
+const waitForAuthHydration = async () => {
+  if (useAuth.persist.hasHydrated()) return;
+  await new Promise<void>((resolve) => {
+    const unsub = useAuth.persist.onFinishHydration(() => {
+      unsub();
+      resolve();
+    });
+  });
+};
+
+// In route guards:
+beforeLoad: async () => {
+  await waitForAuthHydration();
+  if (!useAuth.getState().loggedIn) {
+    throw redirect({ to: "/auth/login" });
+  }
+},
+```
+
+### House Keeping
+What changed (dev only):
+- SWC instead of Babel for JSX transforms — this is the biggest win, SWC is 20-70x faster per file transform
+- Removed vite-plugin-deadfile from dev — was scanning all of src/ on every startup
+- Removed sentryVitePlugin from dev — was hooking into the pipeline for nothing
+- Removed vite-tsconfig-paths — redundant with your existing resolve.alias
+- Added optimizeDeps.include — pre-bundles heavy deps upfront so Vite doesn't discover them at runtime (avoids full-page reloads)
+- Removed stale esbuild 0.24.0 override — lets Vite use its native esbuild version
+
+```bash
+open -na "Google Chrome" --args --disable-web-security --user-data-dir="/tmp/chrome_dev" "http://localhost:5174"
+```

@@ -1,0 +1,18 @@
+---
+layout: ../../layouts/Layout.astro
+title: "February 18, 2026"
+date: 2026-02-18
+tags: [changelog]
+features: []
+---
+
+- [x]  Show skeleton for NCs
+#### Antialiasing
+Without antialiased (default on macOS):
+- The browser uses subpixel antialiasing. It treats each pixel as red, green, and blue subpixels and shades them to make edges look sharper.
+- That can make strokes look thicker, especially at small sizes and on Retina screens, because the algorithm is tuned for sharpness more than for matching a design tool’s rendering.
+With antialiased:
+- -webkit-font-smoothing: antialiased turns off subpixel rendering and uses grayscale antialiasing instead: only full-pixel opacity changes, no R/G/B tricks.
+- Strokes stay at the “true” weight of the font (e.g. 400) and often look a bit lighter and closer to how Figma/Sketch render (they also don’t use subpixel antialiasing the same way).
+So the font didn’t actually get a different font-weight; the rendering method changed. Subpixel antialiasing was making the same 400 weight appear heavier; grayscale antialiasing makes it look closer to the design.
+- [x] Fix style issues after design review

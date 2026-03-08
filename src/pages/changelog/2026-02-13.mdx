@@ -1,0 +1,52 @@
+---
+layout: ../../layouts/Layout.astro
+title: "February 13, 2026"
+date: 2026-02-13
+tags: [changelog]
+features: []
+---
+
+- Upgraded **Vite** from 5 → 6 → 7: bumped `vite` to `^7.0.0` (resolved 7.3.1) and `@vitejs/plugin-react` to `^5.0.0`; production build and tests pass with Vite 7.
+- Fixed **CI failing after lockfile changes**: pnpm store cache used **restore-keys**, so when the lockfile changed CI restored an old store. Removed **restore-keys** in `.github/actions/setup/action.yml` so the cache only restores when the lockfile hash matches.
+- Confirmed **Node/pnpm** meet Vite 6/7 requirements; no version bumps needed.
+- Improved **dev startup and HMR**: removed **license-check** from the `dev` script (still runs in build/CI). Made **React Compiler** and **visualizer** conditional in `vite.config.ts` (only when `command === "build"`), so dev uses esbuild for JSX and skips visualizer for faster startup and HMR.
+- Documented **license-check** behaviour and noted it doesn’t `process.exit(1)` on hits.
+
+#### Tailwind Update
+## Issues we ran into (Tailwind v4 upgrade)
+
+| Issue                                            | Cause                                             | Fix                                                                                  |
+| ------------------------------------------------ | ------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| PostCSS not migrated                             | Config uses "dynamic JavaScript"                  | Manually switched to `@tailwindcss/postcss` and removed postcss-import/autoprefixer. |
+| `darkMode: ["class"]` type error                 | v4 expects `"class"` or `["class", string]`       | Changed to `darkMode: "class"`.                                                      |
+| `tailwindcss/types/config` / `PluginAPI` missing | v4 doesn't export that from the main package      | Inlined a minimal plugin type and cast `plugins` in the config.                      |
+| `safelist` not in v4 Config type                 | v4 types omit safelist                            | Kept safelist in config object and used `as Config`.                                 |
+| `resolveConfig` not found                        | Removed in v4                                     | Exported `themeColors` from config and used it in Colors.stories.tsx.                |
+| Dialog `outline-solid` variant type error        | Button didn't declare that variant                | Added `outline-solid` variant to the Button component.                               |
+
+### 1. Checklist
+- Added **`docs/tailwind-upgrade-checklist.md`** with ordered steps (branch, run upgrade tool, fix config, fix utilities, theme/plugins, JS usage, behaviour checks, test), breaking changes/renames, and project-specific notes (config layout, safelist, resolveConfig, etc.).  
+### 2. Step 1 – Prep
+- Created a branch and confirmed Node 20+.
+### 3. Step 2 – Upgrade tool
+- Ran **`npx @tailwindcss/upgrade --force`** (needed `--force` because git wasn't clean).
+- It updated **`src/index.css`** to `@import 'tailwindcss'`, `@config '../tailwind.config.ts'`, and a v3 border-color compatibility layer; bumped **`tailwindcss`** to **^4.1.18** in `package.json`; did **not** change PostCSS (said "dynamic JavaScript") or migrate the JS config to CSS.
+### 4. Step 3 – Build & config
+- Installed **`@tailwindcss/postcss`** and updated **`postcss.config.js`**: use `@tailwindcss/postcss` only; removed `postcss-import` and `autoprefixer`; kept **`@csstools/postcss-oklab-function`**.
+- Fixed build/type errors: `darkMode: "class"`, plugin types (inlined type + cast), safelist (`as Config`), **Colors.stories.tsx** (use exported `themeColors` instead of `resolveConfig`), Button variant **`outline-solid`**, **NewsFeedPublisherPanel** factor comparisons (`DOMAIN_AUTHORITY` / `READERSHIP`).
+### 5. Step 4 – Renamed/removed utilities
+- **`outline-none`** → **`outline-hidden`** (button.tsx).
+- **`rounded-sm`** → **`rounded-xs`** (many files).
+- Bare **`shadow`** → **`shadow-sm`** (sidebar, popover, radio-group).
+- **`drop-shadow-sm`** → **`drop-shadow-xs`** (InlineSearchEditor).
+- Standalone **`rounded`** → **`rounded-sm`** (BarChart.stories, 3 places).
+### 6. Charts / safelist (v4 doesn't support JS safelist)
+- Added **`scripts/generate-safelist-css.ts`** to build chart/chart-inactive and gradient class names and write **`src/safelist-inline.css`** with **`@source inline("...")`** (and variants).
+- **`src/index.css`**: **`@import './safelist-inline.css'`** (after `@import 'tailwindcss'`, before `@config`).
+- **`package.json`**: **`generate:safelist`** script and run it in **`build`**, **`build:prod`**, **`build:no-check`**.
+### 7. Custom gray rendering black
+- Custom gray in **`configs/tailwind/colors/base.ts`** uses **`oklch(... / <alpha-value>)`**; with **@config** that can be invalid/ignored in v4 and fall back to black.
+- **Fix:** Overrode gray in **`src/index.css`** with **`@theme`** defining **`--color-gray-50`** … **`--color-gray-950`** using the same oklch values (no `<alpha-value>`).
+### 8. CSS import order
+- **Error:** "`@import` must precede all other statements".
+- **Fix:** Moved **`@import './safelist-inline.css'`** to the top with **`@import 'tailwindcss'`**; **`@config`** comes after all `@import`s.

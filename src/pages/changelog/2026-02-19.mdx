@@ -1,0 +1,202 @@
+---
+layout: ../../layouts/Layout.astro
+title: "February 19, 2026"
+date: 2026-02-19
+tags: [changelog]
+features: []
+---
+
+- Bug fixes for styles
+- Default news filter
+- Build AI animating border button
+```ts
+import { cn } from "@/lib/utils";
+
+import { animate, motion, useMotionValue, useTransform } from "motion/react";
+
+import { forwardRef, useEffect, useState } from "react";
+
+import {
+
+Button as AriaButton,
+
+type ButtonProps as AriaButtonProps,
+
+composeRenderProps,
+
+} from "react-aria-components";
+
+  
+
+const GRADIENT_COLORS = "#9747FF, #ec4899, #db2777, #9747FF";
+
+  
+
+/** Font size per size variant; height remains auto. */
+
+const SIZE_TEXT_CLASSES = {
+
+xs: "text-xxs",
+
+sm: "text-xs",
+
+md: "text-sm",
+
+lg: "text-base",
+
+} as const;
+
+  
+
+export interface AIButtonProps extends AriaButtonProps {
+
+/** Size variant (font only); defaults to md. */
+
+size?: keyof typeof SIZE_TEXT_CLASSES;
+
+}
+
+  
+
+const innerButtonClassNames = [
+
+"relative z-10 h-auto min-h-0 inline-flex items-center justify-center gap-1 rounded-[var(--radius-rounded,4px)]",
+
+"py-1 pl-2 pr-2.5 tracking-[0.11px]",
+
+"bg-[var(--VIOLET-950,#300066)] text-white",
+
+"whitespace-nowrap transition-colors duration-100 cursor-pointer",
+
+"data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+
+"data-[focus]:outline-none data-[focus]:ring-0 data-[focus]:ring-offset-0",
+
+"data-[focus-visible]:outline-none data-[focus-visible]:ring-2",
+
+"data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2",
+
+"data-[focus-visible]:ring-blue-750",
+
+"focus:outline-none",
+
+].join(" ");
+
+  
+
+/**
+
+* Primary-style button with rotating gradient border on hover. Motion animates
+
+* the gradient angle (no rotating element), so the border stays a perfect
+
+* rounded rect with no corner artifacts.
+
+*/
+
+const AIButton = forwardRef<HTMLButtonElement, AIButtonProps>(
+
+({ size = "md", className, type = "button", ...props }, ref) => {
+
+const [isHovered, setIsHovered] = useState(false);
+
+const angle = useMotionValue(0);
+
+const background = useTransform(
+
+angle,
+
+(v) => `conic-gradient(from ${v}deg, ${GRADIENT_COLORS})`,
+
+);
+
+  
+
+useEffect(() => {
+
+const controls = animate(angle, isHovered ? 360 : 0, {
+
+duration: isHovered ? 3 : 0,
+
+repeat: isHovered ? Number.POSITIVE_INFINITY : 0,
+
+ease: "linear",
+
+});
+
+return () => controls.stop();
+
+}, [angle, isHovered]);
+
+  
+
+return (
+
+<div
+
+className={cn(
+
+"relative inline-flex w-fit overflow-hidden rounded-[var(--radius-rounded,4px)]",
+
+"p-[1.5px]",
+
+)}
+
+onMouseEnter={() => setIsHovered(true)}
+
+onMouseLeave={() => setIsHovered(false)}
+ &gt; 
+<motion.div
+
+aria-hidden
+
+className="absolute inset-0 z-0 pointer-events-none rounded-[var(--radius-rounded,4px)]"
+
+initial={false}
+
+animate={{ opacity: isHovered ? 1 : 0 }}
+
+transition={{ duration: 0.3, ease: "easeInOut" }}
+
+style={{ background }}
+
+/>
+
+<AriaButton
+
+ref={ref}
+
+type={type}
+
+className={composeRenderProps(className, (className) =>
+
+cn(innerButtonClassNames, SIZE_TEXT_CLASSES[size], className),
+
+)}
+
+{...props}
+
+/>
+
+</div>
+
+);
+
+},
+
+);
+
+  
+
+AIButton.displayName = "AIButton";
+
+  
+
+export { AIButton };
+```
+
+
+
+- 
+- 
+-

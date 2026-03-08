@@ -1,0 +1,51 @@
+---
+layout: ../../layouts/Layout.astro
+title: "February 17, 2026"
+date: 2026-02-17
+tags: [changelog]
+features: []
+---
+
+- Update knip remove warnings and unrelated components from config file
+- [x] Wire up the root router
+
+
+#### Too Many Renderers
+Issue
+- With the TanStack Router feature flag off, going to Share of Voice caused a “Too many re-renders” infinite loop in local dev (pnpm dev).
+- The loop only showed up in dev, not in the production build.
+- The error pointed at ShareOfVoiceFilterContainer.
+Why it only broke in dev
+- React Compiler runs only in production. In dev, nothing was memoizing subscription options, so new object references every render triggered urql and re-renders in a loop.
+- React Strict Mode in dev (double mount/unmount) made the derive store return new object references on re-subscribe, which useSyncExternalStore treated as changes and caused more re-renders.
+What we changed
+1. useShareOfVoiceFilterSubscriptions.ts
+- Memoized the subscription variables with useMemo so urql gets a stable reference.
+- Used a stable context object and a stable reducer instead of creating new ones each render.
+- Stopped the “new options every render → urql churn → re-render” loop.
+1. src/lib/derive-zustand/index.ts
+- When the derive store re-computes after invalidation (e.g. Strict Mode unsubscribe/resubscribe), it now keeps the previous state reference if the new value is deeply equal.
+- Avoids spurious “snapshot changed” for useSyncExternalStore and extra re-renders.
+1. main.tsx (router choice)
+- Froze the router choice (React Router vs TanStack Router) on first render with a ref, so we don’t switch routers when navigating from e.g. /newsfeeds to /share-of-voice, which was contributing to instability.
+1. Tried but reverted
+- Pinning GrowthBook to 1.6.2 didn’t fix it.
+- Enabling React Compiler in dev hid the bug but didn’t fix the cause; we reverted that and fixed the root cause instead.
+
+#### Root route indexing
+1. Router selection by feature flag
+	- In main.tsx, routing is driven only by navigation-v2-stable. When it’s on, TanStack Router handles all routes; when it’s off, React Router does. Removed the previous path-based check and TANSTACK_PATHS.
+2. Auth routes in TanStack Router
+	- Added TanStack routes and components for auth: /auth/login, /auth/register, /auth/forgot-password, /auth/forgot-password-confirm (new route components under src/routes/auth/ that use TanStack’s Link and useNavigate).
+3. Auth and catch-all behaviour
+	- Unauthenticated users hitting app routes are redirected to /auth/login.
+	- Logged-in users hitting auth routes are redirected to /discovery.
+	- Any unmatched path (e.g. /, /newsfeeds) is redirected to /discovery.
+	- After login/register, users are sent to /discovery (not /newsfeeds).
+4. Register gated by feature flag
+	-  RegisterRoute uses useFeature("allow-registration", false) and redirects to /auth/login when registration is disabled, matching the old router.
+
+5. Strict validation for forgot-password-confirm
+	 - Added forgotPasswordConfirmSearchSchema in authValidation.ts with required uid and token (z.string().min(1)).
+	 - In the router, validateSearch uses that schema and redirects to /auth/forgot-password when invalid or missing.
+	 - Removed the component’s useEffect redirect and the ?? null when calling the API; the route guarantees valid uid and token.

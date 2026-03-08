@@ -1,0 +1,52 @@
+---
+layout: ../../layouts/Layout.astro
+title: "February 10, 2026"
+date: 2026-02-10
+tags: [changelog]
+features: []
+---
+
+### Analysis / News Feed Params – Notes
+**Problem**
+- Moving news feed under TanStack Router (/analysis/$feedId).
+- Params (date range, selected filters) currently live in **Zustand** and are synced to the URL.
+- Goal: **URL as source of truth** on TanStack routes and **eventually remove the params store**.
+- Many components/APIs already use **useNewsFeedContext()** for feedId, dates, selectedFilters.
+- **Chart selection** should stay in store (drives filters/articles only, not URL).
+
+**Approach**
+- **Same pattern as Discovery:** route reads URL search params and provides a **React context** with feedId, startDate, endDate, selectedFilters (same shapes as today).
+- **Keep using the existing hook:** useNewsFeedContext stays the single API.
+- **When context is present** (under a TanStack route that provides it): hook returns values from context.
+- **When context is absent** (React Router / legacy news feed): hook uses useParams() + params store (current behaviour).
+- **feedId when using context:** use **currentFeedId** from store (route already sets it from URL); no reliance on React Router useParams() on TanStack.
+- **Chart selection:** remain in store; hook keeps reading it and merging into effective dates (e.g. bar selection → effective range). Not in URL.
+
+**Why it works with React Router**
+- Only **TanStack routes** (e.g. AnalysisRoute) render the **params-from-URL provider**.
+- Under **React Router** there is no provider → hook falls back to store + useParams().
+- Same hook, two sources depending on tree; no router detection.
+
+**Implementation (high level)**
+1. Add **params-from-URL context** (e.g. NewsFeedParamsFromUrlContext) with value: feedId, startDate, endDate, selectedFilters (from route search).
+2. **useNewsFeedContext:** if context is present → use it (feedId from context or currentFeedId); else → useParams + store. Always keep reading chart/volume from store for effective dates.
+3. **AnalysisRoute** (and later Discovery if desired): wrap tree in this provider; compute value from routeApi.useSearch() (and existing computeDates / buildAndFromSelected).
+4. **Sidebar / AppliedFilters** under Analysis: later refactor to read from context (or hook) and update URL via navigate() instead of store so params store can be removed on that route.
+
+**Outcome**
+- One hook, minimal call-site changes; APIs keep using useNewsFeedContext().
+- URL-backed params on TanStack; chart stays in store; path to remove params store on Analysis without breaking existing consumers.
+## Issues we hit
+- Key message helper tests failed: hook needs sidebar filter provider → we use test-utils Router + wrapper instead of mocking.
+- Mocking the context in tests failed (module/require in test env).
+- Wrapper written as JSX in a `.ts` file → switched to `createElement`.
+- `initialProps` not passed through → we spread RTL options into our `renderHook`.
+- `result.current` / `initialProps` typed as `unknown` → made `RenderOptions<TProps>` and called `rtlRenderHook<TResult, TProps>`.
+### Resolutions
+- Moved “keep forever” sidebar filter API into **analysis-params.context**; added **newsFeed-params.context** with a provider to remove later with React Router.
+- Renamed to “Sidebar” filter params (e.g. `useAnalysisSidebarFilterParams`, `AnalysisSidebarFilterParamsProvider`).
+- Switched the three filter containers + Key Message to `useAnalysisSidebarFilterParams()` and wired feedId for Key Messages on both routes.
+- Wrapped Analysis route sidebar in `AnalysisSidebarFilterParamsProvider`; wrapped newsfeed sidebar in `NewsFeedSidebarFilterParamsProvider`.
+- Analysis sidebar: default open, collapse on narrow resize, resizable via `useFilterMaxWidth` + `useResizeHandle`.
+- Removed `includeKeyMessageFilter`; Key Messages always shown.
+- Test utils: optional **wrapper** in `RenderOptions` and generic **`RenderOptions<TProps>`** so RTL options (e.g. `initialProps`) are forwarded and typed.

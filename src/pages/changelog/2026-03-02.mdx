@@ -1,0 +1,13 @@
+---
+layout: ../../layouts/Layout.astro
+title: "March 2, 2026"
+date: 2026-03-02
+tags: [changelog]
+features: []
+---
+
+- Removed the **navigation-v2-exp** feature flag from **DiscoveryRoute.tsx**. Discovery view always shows the Articles / Narrative Clusters tabs, always passes **tabsBasePath** to the control panel, and always wraps the outlet in **TabPanel**. Removed the **useFeature** import and all conditional logic.
+- Gated the “Generate Insights” column (LLM / Insight buttons) in **NarrativeClustersTable.tsx** behind **navigation-v2-exp**. When the flag is off the column is omitted from **columnDefs**; added **enableGenerateInsightColumn** and included it in the **useMemo** dependency array.
+- Renamed all user-facing “Impact Score” / “Net Impact Score” / “LLM Impact” / “Net LLM Impact” labels to **“LLM Impact Score”** or **“Net LLM Impact Score”** across the files from the rename (from git log), plus **ScoreDisplay.tsx** and **score-display.tsx** for consistency.
+- **Files updated for LLM Impact Score naming:** **FeedArticlesTable.tsx** (column header), **NarrativeClustersTable.tsx** (Net column header), **useGetFeedMetrics.tsx** and **useGetFeedMetrics.test.ts** (metric label), **FeedMetricsRenderer.tsx** (tooltip key and body text), **feedVolumeGraphHelpers.tsx** (graph label), **NewsFeedStaticFiltersContainer.tsx** (filter section title), **narrative-intelligence-v2.utils.ts** (metric title), **ReputationImpactTab.tsx** (inline label), **ShareOfVoiceMetricsTable.tsx** (column header), **score-display.tsx** (title, tooltipTitle, “Why is the…” copy), **ScoreDisplay.tsx** (same). **filterBarHelpers.ts** was left unchanged per request.
+- In **ShareOfVoiceMetricsTable.tsx**, updated the net-impact column header from **“Net Impact”** to **“Net LLM Impact Score”** for consistency with the rest of the app.
